@@ -3,11 +3,12 @@
  */
 function importGiftcards() {
     const giftcardsToInsert = mergeInputSheetsAndEnrichData();
+    shareGiftCardsAmongstSalesVPs(giftcardsToInsert);
     const firstAvailableRow = DATABASE_SHEET.sheet.getLastRow() + 1;
     const insertRange = DATABASE_SHEET.sheet.getRange(firstAvailableRow,
         DATABASE_SHEET.barcodeColumn,
         giftcardsToInsert.length,
-        DATABASE_SHEET.currencyColumn - DATABASE_SHEET.barcodeColumn + 1);
+        DATABASE_SHEET.assignedSalesVPColumn - DATABASE_SHEET.barcodeColumn + 1);
     insertRange.setValues(giftcardsToInsert);
     clearInputSheets();
 }
@@ -73,21 +74,24 @@ function mergeInputSheetsAndEnrichData() {
     const ethereumGiftcards = getEthereumGiftcards();
     // noinspection ES6ConvertVarToLetConst
     var retVal = [];
+    const vlookupFormula = '=vlookup(A2,importrange("https://docs.google.com/spreadsheets/d/1dRMKViPnjefmWTGkOzWczWLxCq2mcF3BMZlnyigwDq0","Sheet1!A1:C900"),3,false)';
     bitcoinGiftcards.forEach(function (giftcard) {
-        retVal.push([
-            giftcard[0], // barcode
-            giftcard[1],  // address
-            PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.bitcoinGiftcardsValue).getValue(), // giftcard value
-            'Bitcoin'
-        ]);
+        var pushVal = [];
+        pushVal[DATABASE_SHEET.barcodeColumnStart0] = giftcard[0];
+        pushVal[DATABASE_SHEET.addressColumnStart0] = giftcard[1];
+        pushVal[DATABASE_SHEET.valueColumnStart0] = PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.bitcoinGiftcardsValue).getValue();
+        pushVal[DATABASE_SHEET.currencyColumnStart0] = 'Bitcoin';
+        pushVal[DATABASE_SHEET.currencyColumnStart0] = vlookupFormula;
+        retVal.push(pushVal);
     });
     ethereumGiftcards.forEach(function (giftcard) {
-        retVal.push([
-            giftcard[0], // barcode
-            giftcard[1],  // address
-            PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.ethereumGiftcardsValue).getValue(), // giftcard value
-            'Ethereum'
-        ]);
+        var pushVal = [];
+        pushVal[DATABASE_SHEET.barcodeColumnStart0] = giftcard[0];
+        pushVal[DATABASE_SHEET.addressColumnStart0] = giftcard[1];
+        pushVal[DATABASE_SHEET.valueColumnStart0] = PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.bitcoinGiftcardsValue).getValue();
+        pushVal[DATABASE_SHEET.currencyColumnStart0] = 'Ethereum';
+        pushVal[DATABASE_SHEET.currencyColumnStart0] = vlookupFormula;
+        retVal.push(pushVal);
     });
     return retVal;
 }
