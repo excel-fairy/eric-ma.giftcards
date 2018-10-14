@@ -1,0 +1,15 @@
+{
+  "timeZone": "Europe/Paris",
+  "dependencies": {
+    "libraries": [{
+      "userSymbol": "ColumnNames",
+      "libraryId": "1UGjRjbG235LzTJJpsi9nkwgRfSSHuWaWLiXqXS-pySdL_dSvwm5iGdei",
+      "version": "1"
+    },{
+      "userSymbol": "CryptocompareClient",
+      "libraryId": "1lVC8jJ2wcWQawBwID98K8KUIGJoXAHP_JOr9AdWD2Fom_gu5PGKPYGjf",
+      "version": "1"
+    }]
+  },
+  "exceptionLogging": "STACKDRIVER"
+}

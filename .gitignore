@@ -1,0 +1,7 @@
+.idea/
+eric-ma.giftcards.iml
+
+*/.clasp.dev.json
+*/.clasp.production.json
+sales-vps/.clasp.dev-*.json
+sales-vps/.clasp.production-*.json

@@ -1,0 +1,8 @@
+{
+  "timeZone": "Europe/Paris",
+  "dependencies": {
+    "libraries": [{
+    }]
+  },
+  "exceptionLogging": "STACKDRIVER"
+}
