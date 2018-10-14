@@ -8,7 +8,7 @@ function importGiftcards() {
     const insertRange = DATABASE_SHEET.sheet.getRange(firstAvailableRow,
         DATABASE_SHEET.barcodeColumn,
         giftcardsToInsert.length,
-        DATABASE_SHEET.assignedSalesVPColumn - DATABASE_SHEET.barcodeColumn + 1);
+        DATABASE_SHEET.salesVPStatusColumn - DATABASE_SHEET.barcodeColumn + 1);
     insertRange.setValues(giftcardsToInsert);
     clearInputSheets();
 }
@@ -81,7 +81,7 @@ function mergeInputSheetsAndEnrichData() {
         pushVal[DATABASE_SHEET.addressColumnStart0] = giftcard[1];
         pushVal[DATABASE_SHEET.valueColumnStart0] = PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.bitcoinGiftcardsValue).getValue();
         pushVal[DATABASE_SHEET.currencyColumnStart0] = 'Bitcoin';
-        pushVal[DATABASE_SHEET.assignedSalesVPColumnStart0] = vlookupFormula;
+        pushVal[DATABASE_SHEET.salesVPStatusColumnStart0] = vlookupFormula;
         retVal.push(pushVal);
     });
     ethereumGiftcards.forEach(function (giftcard) {
@@ -90,7 +90,7 @@ function mergeInputSheetsAndEnrichData() {
         pushVal[DATABASE_SHEET.addressColumnStart0] = giftcard[1];
         pushVal[DATABASE_SHEET.valueColumnStart0] = PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.bitcoinGiftcardsValue).getValue();
         pushVal[DATABASE_SHEET.currencyColumnStart0] = 'Ethereum';
-        pushVal[DATABASE_SHEET.assignedSalesVPColumnStart0] = vlookupFormula;
+        pushVal[DATABASE_SHEET.salesVPStatusColumnStart0] = vlookupFormula;
         retVal.push(pushVal);
     });
     return retVal;
