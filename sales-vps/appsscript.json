@@ -1,11 +1,7 @@
 {
   "timeZone": "Europe/Paris",
   "dependencies": {
-    "libraries": [{
-      "userSymbol": "ColumnNames",
-      "libraryId": "1UGjRjbG235LzTJJpsi9nkwgRfSSHuWaWLiXqXS-pySdL_dSvwm5iGdei",
-      "version": "1"
-    }]
+    "libraries": []
   },
   "exceptionLogging": "STACKDRIVER"
 }
