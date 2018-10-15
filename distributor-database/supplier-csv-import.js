@@ -35,6 +35,7 @@ function importGiftcards() {
         giftcardsToInsert.length,
         DATABASE_SHEET.salesVPStatusColumn - DATABASE_SHEET.barcodeColumn + 1);
     insertRange.setValues(giftcardsToInsert);
+    exportGiftcardsToSalesVPSpreadsheets(giftcardsToInsert);
     clearInputSheets();
 }
 
@@ -141,7 +142,6 @@ function enrichImportedGiftcardsList(giftCardsList) {
     return retVal;
 }
 
-
 /**
  * Get the formula that will fetch the status of a sale from the Sales VP spreadsheet
  * @param salesVP The number of the Sales VP
@@ -154,4 +154,22 @@ function getSalesVPStatusFormula(salesVP) {
     const salesVPSheetName = 'Sheet1';
     const barcodeCellRelativeLocationFormula = 'OFFSET(INDIRECT(SUBSTITUTE(ADDRESS(ROW(),COLUMN()),"$","")),0,-5)';
     return '=VLOOKUP(' + barcodeCellRelativeLocationFormula + ',IMPORTRANGE("' + spreadsheetUrl + '","' + salesVPSheetName + '!A1:C900"),3,false)';
+}
+
+function exportGiftcardsToSalesVPSpreadsheets(giftcards) {
+    giftcards.forEach(function (giftcard) {
+        const salesVPSpreadsheetId = salesVPSpreadsheetsIds[salesVPNameToNumber(giftcard[DATABASE_SHEET.assignedSalesVPColumnStart0])];
+        addGiftCardToSalesVPSpreadsheet(salesVPSpreadsheetId, {
+            barcode: giftcard[DATABASE_SHEET.barcodeColumnStart0],
+            address: giftcard[DATABASE_SHEET.addressColumnStart0]
+        })
+    });
+}
+
+/**
+ * Get the sales VP number from its name
+ * @param salesVPName The Sales VP name de la forme "SalesVP X" where X is a number
+ */
+function salesVPNameToNumber(salesVPName) {
+    return salesVPName.split(' ')[2];
 }
