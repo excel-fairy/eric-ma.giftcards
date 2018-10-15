@@ -7,6 +7,7 @@ function updateCurrenciesPrice() {
     PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.bitcoinPriceCell).setValue(bitcoinPrice);
     const ethereumPrice = getCurrencyPrice('ETH');
     PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.ethereumPriceCell).setValue(ethereumPrice);
+    PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.currenciesPriceLastUpdateDateCell).setValue(new Date());
 }
 
 /**
