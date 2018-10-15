@@ -1,9 +1,34 @@
+// noinspection ES6ConvertVarToLetConst
+/**
+ * Contains spreadsheet IDs of the sales VPs
+ * @type {{"1": Object, "2": Object, "3": Object}}
+ */
+var salesVPSpreadsheetsIds = {
+    1: PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.salesVP1SpreadsheetId).getValue(),
+    2: PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.salesVP2SpreadsheetId).getValue(),
+    3: PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.salesVP3SpreadsheetId).getValue()
+};
+
+// noinspection ES6ConvertVarToLetConst
+/**
+ * Contains names of the sales VPs
+ * @type {{"1": Object, "2": Object, "3": Object}}
+ */
+var salesVPNames = {
+    1: PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.salesVP1Name).getValue(),
+    2: PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.salesVP2Name).getValue(),
+    3: PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.salesVP3Name).getValue()
+};
+
+
+
 /**
  * Import giftcards from both input sheets (bitcoin and ethereum)
  */
 function importGiftcards() {
-    const giftcardsToInsert = mergeInputSheetsAndEnrichData();
-    shareGiftCardsAmongstSalesVPs(giftcardsToInsert);
+    const importedGiftcards = mergeInputSheets();
+    shareGiftCardsAmongstSalesVPs(importedGiftcards);
+    const giftcardsToInsert = enrichImportedGiftcardsList(importedGiftcards);
     const firstAvailableRow = DATABASE_SHEET.sheet.getLastRow() + 1;
     const insertRange = DATABASE_SHEET.sheet.getRange(firstAvailableRow,
         DATABASE_SHEET.barcodeColumn,
@@ -67,31 +92,63 @@ function getGiftcardsRange(sheet) {
 
 /**
  * Merge both input sheets (bitcoin and ethereum) and add giftcard value and currency
+ * @return T[] | array of objects of three elements: barcode, address and currency of the giftcard
  */
-function mergeInputSheetsAndEnrichData() {
+function mergeInputSheets() {
+    // noinspection ES6ConvertVarToLetConst
+    const bitcoinGiftcards = getBitcoinGiftcards().map(function (gc) {
+        return {
+            barcode: gc[0],
+            address: gc[1],
+            currency: 'Bitcoin',
+        };
+    });
+    const ethereumGiftcards = getEthereumGiftcards().map(function (gc) {
+        return {
+            barcode: gc[0],
+            address: gc[1],
+            currency: 'Ethereum',
+        };
+    });
+    return bitcoinGiftcards.concat(ethereumGiftcards);
+}
+
+
+/**
+ * Add peripheral data to each giftcard in the input array
+ * @param giftCardsList The input array of objects that have four elements: barcode, address, currency type, and salesVP (its number)
+ * @return {Array} An array of arrays (each sub-array represents a giftcard
+ */
+function enrichImportedGiftcardsList(giftCardsList) {
     updateCurrenciesPrice();
-    const bitcoinGiftcards = getBitcoinGiftcards();
-    const ethereumGiftcards = getEthereumGiftcards();
     // noinspection ES6ConvertVarToLetConst
     var retVal = [];
-    const vlookupFormula = '=vlookup(A2,importrange("https://docs.google.com/spreadsheets/d/1dRMKViPnjefmWTGkOzWczWLxCq2mcF3BMZlnyigwDq0","Sheet1!A1:C900"),3,false)';
-    bitcoinGiftcards.forEach(function (giftcard) {
+    giftCardsList.forEach(function (giftcard) {
+        const salesVP = giftcard.salesVP;
+        // noinspection ES6ConvertVarToLetConst
         var pushVal = [];
-        pushVal[DATABASE_SHEET.barcodeColumnStart0] = giftcard[0];
-        pushVal[DATABASE_SHEET.addressColumnStart0] = giftcard[1];
+        pushVal[DATABASE_SHEET.barcodeColumnStart0] = giftcard.barcode;
+        pushVal[DATABASE_SHEET.addressColumnStart0] = giftcard.address;
         pushVal[DATABASE_SHEET.valueColumnStart0] = PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.bitcoinGiftcardsValue).getValue();
-        pushVal[DATABASE_SHEET.currencyColumnStart0] = 'Bitcoin';
-        pushVal[DATABASE_SHEET.salesVPStatusColumnStart0] = vlookupFormula;
-        retVal.push(pushVal);
-    });
-    ethereumGiftcards.forEach(function (giftcard) {
-        var pushVal = [];
-        pushVal[DATABASE_SHEET.barcodeColumnStart0] = giftcard[0];
-        pushVal[DATABASE_SHEET.addressColumnStart0] = giftcard[1];
-        pushVal[DATABASE_SHEET.valueColumnStart0] = PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.bitcoinGiftcardsValue).getValue();
-        pushVal[DATABASE_SHEET.currencyColumnStart0] = 'Ethereum';
-        pushVal[DATABASE_SHEET.salesVPStatusColumnStart0] = vlookupFormula;
+        pushVal[DATABASE_SHEET.currencyColumnStart0] = giftcard.currency;
+        pushVal[DATABASE_SHEET.assignedSalesVPColumnStart0] = salesVPNames[salesVP];
+        pushVal[DATABASE_SHEET.salesVPStatusColumnStart0] = getSalesVPStatusFormula(salesVP);
         retVal.push(pushVal);
     });
     return retVal;
+}
+
+
+/**
+ * Get the formula that will fetch the status of a sale from the Sales VP spreadsheet
+ * @param salesVP The number of the Sales VP
+ * @return {string} The formula
+ * example of output: =VLOOKUP(OFFSET(INDIRECT(SUBSTITUTE(ADDRESS(ROW(),COLUMN()),"$","")),0,-5),IMPORTRANGE("https://docs.google.com/spreadsheets/d/__SHEET_ID__","Sheet1!A1:C900"),3,false)
+ */
+function getSalesVPStatusFormula(salesVP) {
+    const salesVPSSpreadsheetId = salesVPSpreadsheetsIds[salesVP];
+    const spreadsheetUrl = 'https://docs.google.com/spreadsheets/d/' + salesVPSSpreadsheetId;
+    const salesVPSheetName = 'Sheet1';
+    const barcodeCellRelativeLocationFormula = 'OFFSET(INDIRECT(SUBSTITUTE(ADDRESS(ROW(),COLUMN()),"$","")),0,-5)';
+    return '=VLOOKUP(' + barcodeCellRelativeLocationFormula + ',IMPORTRANGE("' + spreadsheetUrl + '","' + salesVPSheetName + '!A1:C900"),3,false)';
 }

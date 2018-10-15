@@ -1,10 +1,3 @@
-// noinspection ES6ConvertVarToLetConst
-var salesVPExpectedPercentageOfGC = {
-    1: PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.salesVP1Share).getValue(),
-    2: PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.salesVP2Share).getValue(),
-    3: PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.salesVP3Share).getValue(),
-};
-
 /**
  * Share giftcards between all three sales VPs. Repartition is weighted on the factor in the parameters sheet
  * This function modifies the elements of the array passed as an argument
@@ -18,11 +11,6 @@ function shareGiftCardsAmongstSalesVPs(giftcards) {
         2: 0,
         3: 0
     };
-    const salesVPNames = {
-        1: PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.salesVP1Name).getValue(),
-        2: PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.salesVP2Name).getValue(),
-        3: PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.salesVP3Name).getValue()
-    };
     const nbGiftcardsPerSalesAgent = computeNbGiftcardsPerSalesAgent(nbGC);
 
     // noinspection ES6ConvertVarToLetConst
@@ -33,12 +21,11 @@ function shareGiftCardsAmongstSalesVPs(giftcards) {
     };
     giftcards.forEach(function (giftCard) {
 
-        // noinspection ES6ConvertVarToLetConst
         const salesVP = getRandomSalesVP(skippedSalesVP);
         SalesVPNbOfGC[salesVP]++;
         if(SalesVPNbOfGC[salesVP] === nbGiftcardsPerSalesAgent[salesVP])
             skippedSalesVP[salesVP] = true;
-        giftCard[DATABASE_SHEET.assignedSalesVPColumnStart0] = salesVPNames[salesVP];
+        giftCard.salesVP = salesVP;
     })
 }
 
@@ -69,7 +56,9 @@ function getRandomSalesVP(skippedSalesVP) {
     // noinspection ES6ConvertVarToLetConst
     var grn = Math.floor((Math.random() * nbOfSalesVPNotSkipped) + 1);
 
+    // noinspection ES6ConvertVarToLetConst
     var index = 1;
+    // noinspection ES6ConvertVarToLetConst
     for (var salesVP in skippedSalesVP) {
         if (skippedSalesVP.hasOwnProperty(salesVP)) {
             if(skippedSalesVP[salesVP] !== true)
