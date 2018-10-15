@@ -129,7 +129,10 @@ function enrichImportedGiftcardsList(giftCardsList) {
         var pushVal = [];
         pushVal[DATABASE_SHEET.barcodeColumnStart0] = giftcard.barcode;
         pushVal[DATABASE_SHEET.addressColumnStart0] = giftcard.address;
-        pushVal[DATABASE_SHEET.valueColumnStart0] = PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.bitcoinGiftcardsValue).getValue();
+        if(giftcard.currency === 'Bitcoin')
+            pushVal[DATABASE_SHEET.valueColumnStart0] = PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.bitcoinGiftcardsValue).getValue();
+        else if(giftcard.currency === 'Ethereum')
+            pushVal[DATABASE_SHEET.valueColumnStart0] = PARAMETERS_SHEET.sheet.getRange(PARAMETERS_SHEET.ethereumGiftcardsValue).getValue();
         pushVal[DATABASE_SHEET.currencyColumnStart0] = giftcard.currency;
         pushVal[DATABASE_SHEET.assignedSalesVPColumnStart0] = salesVPNames[salesVP];
         pushVal[DATABASE_SHEET.salesVPStatusColumnStart0] = getSalesVPStatusFormula(salesVP);
